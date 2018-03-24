@@ -644,3 +644,16 @@ footer .foot .copy a{
 #sideBar .back:hover{
 	background-color: #B4A078;
 }
+
+
+/*----------面包屑----------*/
+#position{
+	width: 1090px;
+	margin: 0 auto;
+	font: 12px/60px "微软雅黑";
+	color: #999;
+}
+#position a:hover{
+	text-decoration: underline;
+	color: #333;
+}
