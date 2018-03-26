@@ -262,6 +262,7 @@
 #look .next{
 	right: 20px;
 }
+
 /*不能点击的时候按钮样式*/
 #look div.noClick{
 	background: #ddd;
