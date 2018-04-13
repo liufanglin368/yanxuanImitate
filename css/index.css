@@ -173,6 +173,7 @@
 	background: #f4f0ea;
 	padding: 0 4px;
 	border-radius: 5px;
+	z-index: 2;
 }
 #new img{
 	width: 265px;
@@ -282,7 +283,9 @@
 #recommend .content{
 	display: none;
 }
-
+#recommend .original{
+	background-color: #FFFFFF;
+}
 
 /*----------限时购----------*/
 #limit{
@@ -410,7 +413,9 @@
 	text-align: center;
 	margin-top: 10px;
 }
-
+#limit .original{
+	background-color: #FFFFFF;
+}
 
 /*----------居家----------*/
 .category{
