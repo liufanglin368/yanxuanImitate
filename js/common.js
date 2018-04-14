@@ -83,7 +83,7 @@ window.yx={
 				};
 			};
 		},
-		//回到顶部
+		//回到顶部功能
 		backUpFn:function(){
 			var back=yx.g('.back');
 			var timer;
