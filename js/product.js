@@ -217,3 +217,353 @@ positionFn.innerHTML+=curData.name;
 		moveWay:'position'
 	});
 })();
+
+
+//详情功能
+(function(){
+	//评价与详情选项卡
+	var as=yx.ga('#bottom .title a');
+	var tabs=yx.ga('#bottom .content>div');
+	var ln=0;
+	
+	for(var i=0;i<as.length;i++){
+		as[i].index=i;
+		as[i].onclick=function(){
+			as[ln].className='';
+			tabs[ln].style.display='none';
+			
+			this.className='active';
+			tabs[this.index].style.display='block';
+			
+			ln=this.index;
+		};
+	};
+	
+	//详情内容产品参数
+	var tbody=yx.g('.details tbody');
+	for(var i=0;i<curData.attrList.length;i++){
+		if(i%2==0){
+			var tr=document.createElement('tr');
+		};
+		
+		var td1=document.createElement('td');
+		td1.innerHTML=curData.attrList[i].attrName;
+		var td2=document.createElement('td');
+		td2.innerHTML=curData.attrList[i].attrValue;
+		
+		tr.appendChild(td1);
+		tr.appendChild(td2);
+		tbody.appendChild(tr);
+	};
+	
+	//详情图片列表
+	var img=yx.g('.details .img');
+	img.innerHTML=curData.itemDetail.detailHtml;
+})();
+
+
+//评价功能
+(function(){
+	var evealuateNum=commentData[pageId].data.result.length;	//当前评论的数量
+	var evealuateText=evealuateNum>1000?'999+':evealuateNum;
+	
+	yx.ga('#bottom .title a')[1].innerHTML='评价<span> ('+evealuateText+') </span>';
+	
+	var allData=[[],[]];		//第一个全部评价，第二个有图的评价
+	for(var i=0;i<evealuateNum;i++){
+		allData[0].push(commentData[pageId].data.result[i]);
+		
+		if(commentData[pageId].data.result[i].picList.length){
+			allData[1].push(commentData[pageId].data.result[i]);
+		};
+	};
+	
+	yx.ga('#bottom .eTitle span')[0].innerHTML='全部 ('+allData[0].length+')';
+	yx.ga('#bottom .eTitle span')[1].innerHTML='有图 ('+allData[1].length+')';
+	
+	var curData=allData[0];
+	var btns=yx.ga('#bottom .eTitle div');
+	var ln=0;
+	for(var i=0;i<btns.length;i++){
+		btns[i].index=i;
+		btns[i].onclick=function(){
+			btns[ln].className='';
+		
+			this.className='active';
+			ln=this.index;
+			
+			curData=allData[this.index];
+			showComment(10,0);
+			
+			createPage(10,curData.length);		//生成页码
+		};
+	};
+	
+	
+	//显示评价数据
+	showComment(10,0);
+	function showComment(pn,cn){
+		//pn一页几行 cn当前页
+		
+		var ul=yx.g('#bottom .border>ul');
+		var dataStart=pn*cn;		//起始值
+		var dataEnd=dataStart+pn;	//结束值
+		
+		if(dataEnd>curData.length){
+			dataEnd=curData.length;
+		};
+		
+		//主体结构
+		var str='';
+		ul.innerHTML='';
+		for(var i=dataStart;i<dataEnd;i++){
+			var avatart=curData[i].frontUserAvatar?curData[i].frontUserAvatar:'images/avatar.png';
+			var smallImg='';	//小图的父级
+			var dialog='';		//轮播图的父级
+			if(curData[i].picList.length){
+				var span='';
+				var li='';
+				for(var j=0;j<curData[i].picList.length;j++){
+					span+=`<span><img src="${curData[i].picList[j]}"/></span>`;
+					li+=`<img src="${curData[i].picList[j]}"/>`;
+				};
+				smallImg=`<div class="smallImg clearfix">${span}</div>`;
+				dialog=`<div class="dialog" id="commentImg${i}" data-imgnum="${curData[i].picList.length}">
+							<div class="carouselImgCon">
+								<ul>${li}</ul>
+							</div>
+							<div class="close">X</div>
+						</div>`;
+			};
+			
+			str+=`<li>
+					<div class="avatar">
+						<img src="${avatart}"/>
+						<a href="#" class="vip1"></a>
+						<span>${curData[i].frontUserName}</span>
+					</div>
+					<div class="text">
+						<p>${curData[i].content}</p>
+						${smallImg}
+						<div class="color clearfix">
+							<span class="left">
+								${curData[i].skuInfo}
+							</span>
+							<span class="right">
+								${yx.formatDada(curData[i].createTime)}
+							</span>
+						</div>
+						${dialog}
+					</div>
+				</li>`;
+		};
+		
+		ul.innerHTML=str;
+		shouImg();
+	};
+	
+	//轮播图
+	function shouImg(){
+		var spans=yx.ga('#bottom .smallImg span');
+		
+		for(var i=0;i<spans.length;i++){
+			spans[i].onclick=function(){
+				var dialog=this.parentNode.parentNode.lastElementChild;
+				dialog.style.opacity=1;
+				dialog.style.height='510px';
+				
+				var en=0
+				dialog.addEventListener('transitionend',function(){
+					en++;
+					if(en==1){
+						var id=this.id;
+						var commentImg=new Carousel();
+						commentImg.init({
+							id:id,
+							autoplay:false,
+							intervalTime:3000,
+							loop:false,
+							totalNum:dialog.getAttribute('data-imgnum'),
+							moveNum:1,
+							circle:false,
+							moveWay:'position'
+						});
+					};
+				});
+				
+				var closeBtn=dialog.querySelector('.close');
+				closeBtn.onclick=function(){
+					dialog.style.opacity=0;
+					dialog.style.height=0;
+				};
+			};
+		};
+	};
+	
+	
+	//页码功能
+	createPage(10,curData.length);
+	function createPage(pn,tn){
+		//pn 显示页码的数量
+		//tn 数据的总数
+		var page=yx.g('.page');
+		var totalNum=Math.ceil(tn/pn);		//最多显示的页码数量
+		
+		//如果给的页数比总页数大,改成总页数
+		if(pn>totalNum){
+			pn=totalNum;
+		};
+		
+		page.innerHTML='';
+		
+		var cn=0;	//当前点击的页码索引
+		var spans=[];	//存储数字页码
+		var div=document.createElement("div");
+		div.className='minPage';
+		
+		//首页
+		var indexPage=pageFn('首页',function(){
+			for(var i=0;i<pn;i++){
+				spans[i].innerHTML=i+1;
+			};
+			cn=0;
+			showComment(10,0);
+			changePage();
+			
+		});
+		
+		if(indexPage){	//页码小于2返回undefined,报错
+			indexPage.style.display='none';
+		};
+		
+		//上一页
+		var prvePage=pageFn('<上一页',function(){
+			cn--;
+			if(cn<0){
+				cn=0;
+			};
+			
+			showComment(10,spans[cn].innerHTML-1);
+			changePage();
+		});
+		
+		if(prvePage){	
+			prvePage.style.display='none';
+		};
+		
+		
+		//创建数字页码
+		for(var i=0;i<pn;i++){
+			var span=document.createElement("span");
+			span.index=i;
+			span.innerHTML=i+1;
+			spans.push(span);
+			//第一个选中
+			span.className=i?'':'active';
+			
+			span.onclick=function(){
+				cn=this.index;
+				showComment(10,this.innerHTML-1);
+				changePage();
+			};
+			
+			div.appendChild(span);
+		};
+		page.appendChild(div);
+		
+		//下一页
+		var nextPage=pageFn('下一页>',function(){
+			/*cn++;
+			if(cn>spans.length-1){
+				cn=spans.length-1
+			};*/
+			
+			if(cn<spans.length-1){
+				cn++;
+			};
+			
+			showComment(10,spans[cn].innerHTML-1);
+			changePage();
+		});
+		
+		//尾页
+		var endPage=pageFn('尾页',function(){
+			var end=totalNum;
+			for(var i=pn-1;i>=0;i--){
+				spans[i].innerHTML=end--;
+			};
+			cn=spans.length-1;
+			
+			showComment(10,totalNum-1);
+			changePage();
+		});
+		
+		//更新页码
+		function changePage(){
+			var cur=spans[cn];		//当前点击的页码(数字)
+			var curInner=cur.innerHTML;	//存储当前页码内容 后面修改
+			var differ=spans[spans.length-1].innerHTML-spans[0].innerHTML;	//差值
+			
+			//最后页码点击
+			if(cur.index==spans.length-1){
+				if(Number(cur.innerHTML)+differ>totalNum){
+					differ=totalNum-cur.innerHTML;
+				}
+			};
+			
+			//最前页码点击
+			if(cur.index==0){
+				if(Number(cur.innerHTML)-differ<1){
+					differ=cur.innerHTML-1;
+				}
+			};
+			
+			for(var i=0;i<spans.length;i++){
+				//点击最后 页码
+				if(cur.index==spans.length-1){
+					spans[i].innerHTML=Number(spans[i].innerHTML)+differ;
+				};
+				
+				//最前页码点击
+				if(cur.index==0){
+					spans[i].innerHTML-=differ;
+				};
+				
+				//设置class
+				spans[i].className='';
+				if(spans[i].innerHTML==curInner){
+					spans[i].className='active';
+					cn=spans[i].index;
+				};
+				
+			};
+				
+			//显示与隐藏功能页码
+			if(pn>1){
+				//点第一个页码时,隐藏上一页/首页
+				var dis=curInner==1?'none':'inline-block';
+				indexPage.style.display=prvePage.style.display=dis;
+				
+				//点最后面页码时,隐藏下一页/尾页
+				var dis=totalNum==curInner?'none':'inline-block';
+				nextPage.style.display=endPage.style.display=dis;
+			};
+		};
+		
+		
+		
+		//创建非数字页码的公用函数
+		function pageFn(inner,fn){
+			if(pn<2){	//页码小于2返回
+				return;
+			};
+			var span=document.createElement("span");
+			span.innerHTML=inner;
+			span.onclick=fn;
+			page.appendChild(span);
+			
+			return span;
+		};
+	};
+	
+})();
