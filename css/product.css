@@ -111,6 +111,11 @@
 	border: 2px solid #B4A078;
 	background: url(../images/ico_16.gif) right bottom no-repeat;
 }
+#productImg .fomat dd.noClick{
+	cursor: not-allowed;;
+	opacity: .5;
+	border: 1px dashed #e4e4e4;
+}
 #productImg .number *{
 	float: left;
 	font: 12px/28px "微软雅黑";
@@ -300,6 +305,9 @@
 }
 #bottom .title span{
 	color: #B4A078;
+}
+#bottom .content>div{
+	display: none;
 }
 #bottom table{
 	width: 100%;
