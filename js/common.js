@@ -29,6 +29,38 @@ window.yx={
 		
 		return top;
 	},
+	//倒计时
+	cutTime:function(target){	
+		var currentDate=new Date();
+		var v=Math.abs(target-currentDate);
+		
+		return {
+			d:parseInt(v/(24*3600000)),
+			h:parseInt(v%(24*3600000)/3600000),
+			m:parseInt(v%(24*3600000)%3600000/60000),
+			s:parseInt(v%(24*3600000)%3600000%60000/1000)
+		};
+	},
+	//给时间补0
+	format:function(v){
+		return v<10?'0'+v:v;
+	},
+	formatDada:function(time){
+		var d=new Date(time);
+		return d.getFullYear()+'-'+yx.format(d.getMonth()+1)+'-'+yx.format(d.getDate())+' '+yx.format(d.getHours())+':'+yx.format(d.getMinutes());
+	},
+	//url解析成对象
+	parseUrl:function(url){
+		//id=1140214
+		var reg=/(\w+)=(\w+)/ig;
+		var result={};
+		
+		url.replace(reg,function(a,b,c){
+			result[b]=c;
+		});
+		
+		return result;
+	},
 	public:{
 		//吸顶导航功能
 		navFn:function(){	
