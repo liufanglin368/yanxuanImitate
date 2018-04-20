@@ -2,7 +2,7 @@
 yx.public.navFn();
 yx.public.lazyImgFn();
 yx.public.backUpFn();
-
+yx.public.shopFn();
 
 //banner图轮播
 var bannerPic=new Carousel();
