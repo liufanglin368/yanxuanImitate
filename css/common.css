@@ -298,6 +298,7 @@ th,td{
 	right: -22px;
 	background: #fff;
 	padding-top: 15px;
+	z-index: 3;
 }
 .cartWrap .cart:before{
 	content: '';
