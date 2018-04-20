@@ -186,3 +186,4 @@ var Tween = {
         return Tween['bounceOut'](t*2-d, 0, c, d) * 0.5 + c*0.5 + b;
     }
 }
+
