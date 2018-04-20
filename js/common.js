@@ -95,6 +95,195 @@ window.yx={
 				nav.id=window.pageYOffset>nav.offsetTop?'navFix':'';
 			};
 		},
+		//购物车功能
+		shopFn:function(){
+			
+			//购物车添加商品展示
+			var productNum=0;	//买了几个商品
+			(function(local){
+				var totalPrice=0;	//商品合计
+				var ul=yx.g(".cart ul");
+				var li='';
+				ul.innerHTML='';
+				
+				for(var i=0;i<local.length;i++){
+					var attr=local.key(i);	//取到每个key
+					var value=JSON.parse(local[attr]);
+					
+					if(value && value.sign=='productLocal'){
+						li+=`<li data-id="${value.id}">
+								<a href="#" class="img"><img src="${value.img}"/></a>
+								<div class="message">
+									<p><a href="#">${value.name}</a></p>
+									<p>${value.spec.join(' ')} x ${value.num}</p>
+								</div>
+								<div class="price">￥${value.price}</div>
+								 <div class="close">x</div>
+							</li>`;
+							
+						totalPrice+=parseFloat(value.price)*value.num;
+					};
+				};
+				ul.innerHTML=li;
+				
+				productNum=ul.children.length;				//买了多少个商品
+				yx.g('.cartWrap i').innerHTML=productNum;	//更新商品数量的值
+				yx.g('.cartWrap .total span').innerHTML='￥'+totalPrice+'.00';	//更新总价格
+				
+				//删除商品功能
+				var closeBtns=yx.ga('.cart .list .close');
+				for(var i=0;i<closeBtns.length;i++){
+					closeBtns[i].onclick=function(){
+						localStorage.removeItem(this.parentNode.getAttribute('data-id'));	//本地存储中删除某条数据
+						
+						yx.public.shopFn();  //更新数据
+						
+						if(ul.children.length==0){
+							yx.g('.cart').style.display='none';
+						};
+					};
+				};
+				
+				//小红圈添加事件
+				var cartWrap=yx.g('.cartWrap ');
+				var timer;		//购物车弹出层移入移出间隙问题,解决的定时器
+				
+				//购物车里有商品显示购物车
+				
+				cartWrap.onmouseenter=function(){
+					if(ul.children.length>0){
+						clearTimeout(timer);
+						yx.g('.cart').style.display='block';
+						scrollFn();
+					};
+				};
+				cartWrap.onmouseleave=function(){
+					timer=setTimeout(function(){
+						yx.g('.cart').style.display='none';
+					},100);
+				};
+				
+				
+				
+			})(localStorage);
+			
+			//滚动条功能
+			function scrollFn(){
+				var contentWarp=yx.g('.cart .list');
+				var content=yx.g('.cart .list ul');
+				var scrollBar=yx.g('.cart .scrollBar');
+				var slide=yx.g('.cart .slide');
+				var slideWrap=yx.g('.cart .slideWrap');
+				var btns=yx.ga('.scrollBar span');
+				var timer;
+				
+				//滚动条系数
+				var coefficient=content.offsetHeight/contentWarp.offsetHeight;
+				scrollBar.style.display=coefficient<=1?'none':'block';		//滚动条显示与否
+				
+				//给系数一个最大值
+				if(coefficient>20){
+					coefficient=20;
+				};
+				
+				//滑块的高度
+				slide.style.height=slideWrap.offsetHeight/coefficient+'px';
+				
+				//滑块拖拽
+				var scrollTop=0;
+				var maxHeight=slideWrap.offsetHeight-slide.offsetHeight;	//滑块可走的最大距离
+				
+				slide.onmousedown=function(ev){
+					var disY=ev.clientY-slide.offsetTop;
+					
+					document.onmousemove=function(ev){
+						scrollTop=ev.clientY-disY;
+						scroll();
+					};
+					document.onmouseup=function(){
+						this.onmousemove=null;
+					};
+					
+					ev.cancelBubble=true;
+					return false;
+				};
+				
+				//滚轮事件
+				myScroll(contentWarp,function(){
+					scrollTop-=10;
+					scroll();
+					
+					clearInterval(timer);
+				},function(){
+					scrollTop+=10;
+					scroll();
+					
+					clearInterval(timer);
+				});
+				
+				//滑块点击
+				slideWrap.onmousedown=function(ev){
+					timer=setInterval(function(){
+						var slideTop=slide.getBoundingClientRect().top+slide.offsetHeight/2;
+						
+						if(ev.clientY<slideTop){
+							scrollTop-=5;
+						}else{
+							scrollTop+=5;
+						};
+						if(Math.abs(ev.clientY-slideTop)<=5){
+							clearInterval(timer);
+						};
+						scroll();
+					},16);
+				};
+				
+				//滚动条的主体功能
+				function scroll(){
+					if(scrollTop<0){
+						scrollTop=0;
+					}else if(scrollTop>maxHeight){
+						scrollTop=maxHeight;
+					};
+					
+					var scaleY=scrollTop/maxHeight;
+					
+					slide.style.top=scrollTop+'px';
+					content.style.top=-(content.offsetHeight-contentWarp.offsetHeight)*scaleY+'px';
+				};
+				
+				//上下箭头点击
+				for(var i=0;i<btns.length;i++){
+					btns[i].index=i;
+					btns[i].onmousedown=function(){
+						var n=this.index;
+						timer=setInterval(function(){
+							scrollTop=n?scrollTop+5:scrollTop-5;
+							scroll();
+						},16);
+					};
+					btns[i].onmouseup=function(){
+						clearInterval(timer);
+					};
+				};
+				
+				function myScroll(obj,fnUp,fnDown){
+					obj.onmousewheel=fn;
+					obj.addEventListener('DOMMouseScroll',fn);
+					
+					function fn(ev){
+						if(ev.wheelDelta>0 || ev.detail<0){
+							fnUp.call(obj);
+						}else{
+							fnDown.call(obj);
+						}
+						
+						ev.preventDefault();
+						return false;
+					};
+				};
+			};
+		},
 		//图片懒加载功能
 		lazyImgFn:function(){
 			yx.addEvent(window,'scroll',delayImg);
