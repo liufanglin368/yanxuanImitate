@@ -187,6 +187,48 @@ positionFn.innerHTML+=curData.name;
 
 //加入购物车
 (function(){
+	yx.public.shopFn();
+	
+	var joinBtn=yx.g('#productImg .join');
+	joinBtn.onclick=function(){
+		var actives=yx.ga('#productImg .fomat .active');		//选中规格的数量
+		var selcetNum=yx.g('#productImg .number input').value;	//选中的数量
+		
+		if(actives.length<curData.skuSpecList.length || selcetNum<1){
+			alert('请选择正确的数量');
+			return;
+		};
+		
+		var id='';		//拼接后的key
+		var spec=[];	//规格数组
+		
+		for(var i=0;i<actives.length;i++){
+			id+=actives[i].getAttribute('data-id')+';';
+			spec.push(actives[i].innerHTML);
+		};
+		
+		id=id.substring(0,id.length-1);
+		
+		var select={
+			"id":id,
+			"name":curData.name,
+			"price":curData.retailPrice,
+			"num":selcetNum,
+			"spec":spec,
+			"img":curData.skuMap[id].picUrl,
+			"sign":"productLocal"	//标记
+		};
+		
+		//把选择的对象存到localStorage
+		localStorage.setItem(id,JSON.stringify(select));
+		yx.public.shopFn();
+		
+		var cartWrap=yx.g('.cartWrap ');
+		cartWrap.onmouseenter();
+		setTimeout(function(){
+			yx.g('.cart').style.display='none';
+		},2000);
+	};
 	
 })();
 
