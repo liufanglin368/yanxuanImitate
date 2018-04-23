@@ -14,7 +14,6 @@ if(!pageId || !curData){
 //面包屑功能
 var positionFn=yx.g('#position');
 positionFn.innerHTML='<a href="#">首页</a> > ';
-/*var curDataA=productList[1143021];*/
 for(var i=0;i<curData.categoryList.length;i++){
 	positionFn.innerHTML+='<a href="#">'+curData.categoryList[i].name+'</a> > ';
 };
