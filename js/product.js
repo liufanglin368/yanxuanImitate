@@ -592,7 +592,6 @@ positionFn.innerHTML+=curData.name;
 		};
 		
 		
-		
 		//创建非数字页码的公用函数
 		function pageFn(inner,fn){
 			if(pn<2){	//页码小于2返回
@@ -606,5 +605,5 @@ positionFn.innerHTML+=curData.name;
 			return span;
 		};
 	};
-	
+
 })();
